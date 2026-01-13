@@ -8,169 +8,287 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; scroll-behavior: smooth; }
         
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            scroll-behavior: smooth; 
-        }
-
-        /* تنسيق الروابط العلوية */
-        .nav-link-modern {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #4b5563;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        .nav-link-modern:hover { color: #4f46e5; }
-        .nav-link-modern::after {
-            content: '';
-            position: absolute;
-            width: 0; height: 2px;
-            bottom: -4px; right: 0;
-            background-color: #f97316;
-            transition: width 0.3s ease;
-        }
-        .nav-link-modern:hover::after { width: 100%; }
-
-        /* التحكم في السلة والقائمة */
+        /* تأثيرات السلة الجانبية */
         #cart-sidebar { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        #cart-toggle:checked ~ #cart-sidebar { transform: translateX(0); }
-        #cart-toggle:checked ~ #overlay { display: block; }
-        
-        /* إخفاء شريط التمرير الأفقي في الجوال */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .cart-open #cart-sidebar { transform: translateX(0); }
+        .cart-open #overlay { display: block; }
+
+        .nav-link { font-weight: 700; color: #1e1b4b; transition: 0.3s; position: relative; font-size: 0.9rem; }
+        .nav-link:hover { color: #f97316; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; right: 0; background: #f97316; transition: 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-900">
 
-    <input type="checkbox" id="cart-toggle" class="hidden">
-    <label for="cart-toggle" id="overlay" class="fixed inset-0 bg-black/60 z-[60] hidden"></label>
+    <div id="overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 z-[60] hidden"></div>
 
-    <nav class="bg-white shadow-md sticky top-0 z-50">
-        <div class="bg-indigo-900 text-white text-[10px] py-2 text-center font-bold">
-            توصيل سريع لجميع ولايات السودان - اطلب الآن 0902103267
+    <header class="sticky top-0 z-50 shadow-md">
+        <div class="bg-indigo-950 text-white text-[10px] md:text-xs py-2 text-center font-bold tracking-widest border-b border-white/10">
+            توصيل سريع لجميع ولايات السودان | الدفع عبر تطبيق بنكك <i class="fas fa-check-circle mr-1 text-green-400"></i>
         </div>
         
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-black text-indigo-700 tracking-tighter">SUDAN FASHION</h1>
-            
-            <div class="hidden md:flex gap-10">
-                <a href="#home" class="nav-link-modern">الرئيسية</a>
-                <a href="#products" class="nav-link-modern">المنتجات</a>
-                <a href="#about" class="nav-link-modern">من نحن</a>
-                <a href="#contact" class="nav-link-modern">تواصل معنا</a>
+        <nav class="bg-white px-4 py-3">
+            <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+                <div class="flex flex-col">
+                    <h1 class="text-xl md:text-2xl font-black text-indigo-700 leading-none">ZAID LUXURY</h1>
+                    <span class="text-[9px] font-bold text-orange-500 uppercase tracking-[0.2em]">The Best Quality</span>
+                </div>
+
+                <div class="flex order-3 md:order-2 w-full md:w-auto justify-center gap-6 md:gap-8 border-t md:border-t-0 pt-2 md:pt-0">
+                    <a href="#home" class="nav-link">الرئيسية</a>
+                    <a href="#products" class="nav-link">المنتجات</a>
+                    <a href="#about" class="nav-link">من نحن</a>
+                    <a href="#contact" class="nav-link">تواصل معنا</a>
+                </div>
+
+                <div class="order-2 md:order-3">
+                    <button onclick="toggleCart()" class="relative group flex items-center gap-2 bg-indigo-50 hover:bg-indigo-600 px-5 py-2.5 rounded-full transition-all border border-indigo-100 shadow-sm">
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-md">0</span>
+                        <i class="fas fa-shopping-bag text-indigo-600 group-hover:text-white transition-colors"></i>
+                        <span class="text-indigo-700 group-hover:text-white font-black text-xs">سلتك</span>
+                    </button>
+                </div>
             </div>
-
-            <label for="cart-toggle" class="cursor-pointer group flex items-center gap-2 bg-indigo-50 hover:bg-indigo-600 px-5 py-2 rounded-full transition-all border border-indigo-100">
-                <span class="text-indigo-700 group-hover:text-white font-bold text-xs">السلة</span>
-                <i class="fas fa-shopping-basket text-indigo-600 group-hover:text-white"></i>
-            </label>
-        </div>
-
-        <div class="flex md:hidden bg-gray-50 border-t border-gray-100 overflow-x-auto py-3 px-4 gap-6 no-scrollbar">
-            <a href="#home" class="text-xs font-bold text-gray-500 whitespace-nowrap">الرئيسية</a>
-            <a href="#products" class="text-xs font-bold text-gray-500 whitespace-nowrap">المنتجات</a>
-            <a href="#about" class="text-xs font-bold text-gray-500 whitespace-nowrap">من نحن</a>
-            <a href="#contact" class="text-xs font-bold text-gray-500 whitespace-nowrap">تواصل معنا</a>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <aside id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-[70] shadow-2xl flex flex-col">
-        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-            <h2 class="text-lg font-bold italic text-indigo-900">سلة التسوق</h2>
-            <label for="cart-toggle" class="text-3xl cursor-pointer hover:text-red-500">&times;</label>
+        <div class="p-6 border-b flex justify-between items-center bg-indigo-900 text-white">
+            <h2 class="text-lg font-bold"><i class="fas fa-shopping-cart ml-2"></i> سلة طلباتك</h2>
+            <button onclick="toggleCart()" class="text-3xl leading-none hover:text-orange-400 transition">&times;</button>
         </div>
-        <div class="p-6 overflow-y-auto flex-grow space-y-4 text-center">
-            <div class="py-10 border-2 border-dashed border-gray-100 rounded-3xl">
-                <i class="fas fa-cart-plus text-4xl text-gray-200 mb-4"></i>
-                <p class="text-gray-400 text-sm italic">السلة فارغة. اطلب الآن عبر الواتساب مباشرة.</p>
+
+        <div class="flex-grow overflow-y-auto p-4 space-y-4">
+            <div id="cart-items" class="space-y-3">
+                <p class="text-center text-gray-400 py-10 italic text-sm">السلة فارغة حالياً..</p>
             </div>
-            <a href="https://wa.me/249902103267" class="block w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg">واتساب المبيعات</a>
+
+            <div id="checkout-form" class="mt-8 border-t pt-6 hidden animate-fade-in">
+                <h3 class="font-bold text-indigo-900 mb-4 border-r-4 border-orange-500 pr-2">بيانات التوصيل</h3>
+                <div class="space-y-3">
+                    <input type="text" id="cust-name" placeholder="الاسم الكامل" class="w-full border p-3 rounded-xl text-sm outline-none focus:border-indigo-600 bg-gray-50 transition">
+                    <input type="text" id="cust-address" placeholder="العنوان (مثال: الخرطوم، حي المعمورة)" class="w-full border p-3 rounded-xl text-sm outline-none focus:border-indigo-600 bg-gray-50 transition">
+                    <input type="tel" id="cust-phone" placeholder="رقم الموبايل" class="w-full border p-3 rounded-xl text-sm outline-none focus:border-indigo-600 bg-gray-50 transition">
+                    
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <div class="flex items-center gap-2 mb-2 text-indigo-800">
+                            <i class="fas fa-university"></i>
+                            <p class="text-xs font-bold">طريقة الدفع: تطبيق بنكك</p>
+                        </div>
+                        <p class="text-[11px] text-gray-600 leading-relaxed">
+                            رقم الحساب: <span class="font-black text-indigo-700"></span></span> 4800487</span><br>
+                            باسم: <span class="font-bold"></span> زيد عادل عبد الباقي عبد القادر</span><br>
+                            <span class="text-red-500 font-bold mt-1 block">* يرجى إرسال صورة الإشعار عبر واتساب</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 border-t bg-gray-50">
+            <div class="flex justify-between mb-4 font-black text-xl text-indigo-900">
+                <span>الإجمالي:</span>
+                <div><span id="cart-total">0</span> <span class="text-xs font-bold text-gray-500">ج.س</span></div>
+            </div>
+            
+            <button id="next-btn" onclick="showCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                إكمال الطلب
+            </button>
+
+            <button id="submit-btn" onclick="sendWhatsAppOrder()" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold hidden items-center justify-center gap-2 transition-all shadow-lg">
+                <i class="fab fa-whatsapp text-2xl"></i> تأكيد الطلب عبر واتساب
+            </button>
         </div>
     </aside>
 
-    <main class="max-w-7xl mx-auto px-4 py-10">
+    <section id="home" class="relative h-[400px] flex items-center justify-center text-center text-white">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200');">
+            <div class="absolute inset-0 bg-indigo-900/80"></div>
+        </div>
+        <div class="relative z-10 px-4">
+            <h2 class="text-4xl md:text-5xl font-black mb-4">أناقتك السودانية بمواصفات عالمية</h2>
+            <p class="text-lg text-indigo-100 mb-8 max-w-lg mx-auto">توصيل سريع لكل الولايات والدفع ببنكك عند الطلب.</p>
+            <a href="#products" class="bg-orange-500 hover:bg-orange-600 text-white px-10 py-3 rounded-full font-bold shadow-xl transition-all inline-block">تصفح المنتجات</a>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-4">
         
-        <section id="products">
-            <div class="mb-10 border-r-4 border-orange-500 pr-4">
-                <h2 class="text-3xl font-black italic text-slate-800">أحدث المنتجات</h2>
-                <p class="text-gray-500 text-sm mt-1">اختر أناقتك من بين أفضل التصاميم</p>
+        <section id="products" class="py-20">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-black text-slate-800">وصلنا حديثاً</h2>
+                <div class="h-1 w-20 bg-orange-500 mx-auto mt-2"></div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-    <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 group">
-        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500" class="w-full h-48 md:h-72 object-cover rounded-[1.5rem] mb-4 group-hover:scale-105 transition duration-500">
-        <div class="px-2">
-            <h3 class="font-bold text-xs md:text-sm">جاكيت فاخر</h3>
-            <p class="text-indigo-600 font-black text-sm md:text-lg my-2">45,000 ج.س</p>
-            <a href="https://wa.me/249902103267?text=أريد طلب جاكيت فاخر" class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] md:text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</a>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 group">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500" class="w-full h-48 md:h-72 object-cover rounded-[1.5rem] mb-4 group-hover:scale-105 transition duration-500">
-        <div class="px-2">
-            <h3 class="font-bold text-xs md:text-sm">تيشرت أسود كلاسيك</h3>
-            <p class="text-indigo-600 font-black text-sm md:text-lg my-2">15,000 ج.س</p>
-            <a href="https://wa.me/249902103267?text=أريد طلب تيشرت كلاسيك" class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] md:text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</a>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 group">
-        <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=500" class="w-full h-48 md:h-72 object-cover rounded-[1.5rem] mb-4 group-hover:scale-105 transition duration-500">
-        <div class="px-2">
-            <h3 class="font-bold text-xs md:text-sm">بنطلون جينز عصري</h3>
-            <p class="text-indigo-600 font-black text-sm md:text-lg my-2">25,000 ج.س</p>
-            <a href="https://wa.me/249902103267?text=أريد طلب بنطلون جينز عصري" class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] md:text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</a>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 group">
-        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500" class="w-full h-48 md:h-72 object-cover rounded-[1.5rem] mb-4 group-hover:scale-105 transition duration-500">
-        <div class="px-2">
-            <h3 class="font-bold text-xs md:text-sm">تيشرت أبيض قطني</h3>
-            <p class="text-indigo-600 font-black text-sm md:text-lg my-2">12,500 ج.س</p>
-            <a href="https://wa.me/249902103267?text=أريد طلب تيشرت أبيض قطني" class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] md:text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</a>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 group">
-        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500" class="w-full h-48 md:h-72 object-cover rounded-[1.5rem] mb-4 group-hover:scale-105 transition duration-500">
-        <div class="px-2">
-            <h3 class="font-bold text-xs md:text-sm">حذاء كاجوال مريح</h3>
-            <p class="text-indigo-600 font-black text-sm md:text-lg my-2">38,000 ج.س</p>
-            <a href="https://wa.me/249902103267?text=أريد طلب حذاء كاجوال" class="block w-full text-center bg-indigo-600 text-white py-2.5 rounded-xl text-[10px] md:text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</a>
-        </div>
-    </div>
-</div> 
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 hover:shadow-md transition group">
+                    <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500" class="w-full h-48 md:h-64 object-cover rounded-[1.5rem] mb-4">
+                    <div class="px-2 text-center">
+                        <h3 class="font-bold text-sm text-gray-700 h-10 overflow-hidden">جاكيت فاخر</h3>
+                        <p class="text-indigo-600 font-black text-lg my-2">45,000 ج.س</p>
+                        <button onclick="addToCart('جاكيت فاخر', 45000, 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</button>
+                    </div>
                 </div>
+
+                <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 hover:shadow-md transition group">
+                    <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=500" class="w-full h-48 md:h-64 object-cover rounded-[1.5rem] mb-4">
+                    <div class="px-2 text-center">
+                        <h3 class="font-bold text-sm text-gray-700 h-10 overflow-hidden">بنطلون جينز عصري</h3>
+                        <p class="text-indigo-600 font-black text-lg my-2">25,000 ج.س</p>
+                        <button onclick="addToCart('بنطلون جينز عصري', 25000, 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 hover:shadow-md transition group">
+                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500" class="w-full h-48 md:h-64 object-cover rounded-[1.5rem] mb-4">
+                    <div class="px-2 text-center">
+                        <h3 class="font-bold text-sm text-gray-700 h-10 overflow-hidden">حذاء كاجوال</h3>
+                        <p class="text-indigo-600 font-black text-lg my-2">38,000 ج.س</p>
+                        <button onclick="addToCart('حذاء كاجوال', 38000, 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2rem] p-3 shadow-sm border border-gray-100 hover:shadow-md transition group">
+                    <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500" class="w-full h-48 md:h-64 object-cover rounded-[1.5rem] mb-4">
+                    <div class="px-2 text-center">
+                        <h3 class="font-bold text-sm text-gray-700 h-10 overflow-hidden">تيشرت أسود قطني</h3>
+                        <p class="text-indigo-600 font-black text-lg my-2">15,000 ج.س</p>
+                        <button onclick="addToCart('تيشرت أسود قطني', 15000, 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=100')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-orange-500 transition">أضف للسلة</button>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section id="about" class="py-20 mt-20 bg-indigo-50 rounded-[3rem] px-8 text-center">
-            <h2 class="text-2xl font-black mb-6">من نحن؟</h2>
-            <p class="text-gray-600 leading-loose max-w-2xl mx-auto italic">سودان فاشن هو متجركم الأول للأناقة العصرية والجودة العالية بأسعار تنافسية وتوصيل سريع لكل ولايات السودان.</p>
+        <section id="about" class="py-16 border-t">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl font-black text-indigo-900 mb-6 italic">من نحن؟</h2>
+                <p class="text-gray-600 leading-loose text-lg px-4">
+                    نحن في <span class="text-indigo-700 font-bold">Zaid Luxury</span> نهدف لتوفير أجمل الملابس والأحذية بجودة ممتازة لتصلك أينما كنت في السودان. بساطة التسوق وسرعة التوصيل هي ما يميزنا.
+                </p>
+            </div>
         </section>
 
-        <section id="contact" class="py-20 text-center">
-            <h2 class="text-2xl font-black mb-10">تواصل معنا</h2>
-            <div class="flex justify-center gap-8">
-                <a href="tel:0902103267" class="flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 bg-white shadow-md rounded-full flex items-center justify-center text-indigo-600 text-xl  hover:text-white transition"><i class="fas fa-phone"></i></div>
-                    <span class="text-xs font-bold text-gray-500">اتصال</span>
+        <section id="contact" class="py-16 border-t text-center">
+            <h2 class="text-2xl font-black mb-10 text-slate-800 uppercase tracking-widest">تواصل معنا</h2>
+            <div class="flex justify-center gap-12">
+                <a href="tel:0902103267" class="group">
+                    <div class="w-16 h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-2xl text-indigo-700 shadow-sm group-hover:bg-indigo-700 group-hover:text-white transition-all"><i class="fas fa-phone-alt"></i></div>
+                    <p class="mt-2 text-xs font-bold">اتصال</p>
                 </a>
-                <a href="https://wa.me/249902103267" class="flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 bg-white shadow-md rounded-full flex items-center justify-center text-green-500 text-xl hover:bg-green-500 hover:text-white transition"><i class="fab fa-whatsapp"></i></div>
-                    <span class="text-xs font-bold text-gray-500">واتساب</span>
+                <a href="https://wa.me/249902103267" class="group">
+                    <div class="w-16 h-16 bg-white border border-gray-200 rounded-2xl flex items-center justify-center text-2xl text-green-600 shadow-sm group-hover:bg-green-600 group-hover:text-white transition-all"><i class="fab fa-whatsapp"></i></div>
+                    <p class="mt-2 text-xs font-bold">واتساب</p>
                 </a>
             </div>
         </section>
     </main>
 
-    <footer class="bg-slate-900 text-white py-10 text-center text-[10px] text-slate-500">
-        &copy; 2026 جميع الحقوق محفوظة لمتجر سودان فاشن.
+    <footer class="bg-indigo-950 text-white py-8 text-center mt-10">
+        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+            &copy; 2026 جميع الحقوق محفوظة لمتجر سودان فاشن
+        </p>
     </footer>
 
+    <script>
+        let cart = [];
+
+        function toggleCart() { 
+            document.body.classList.toggle('cart-open'); 
+        }
+
+        function addToCart(name, price, img) {
+            const itemIndex = cart.findIndex(item => item.name === name);
+            if (itemIndex > -1) { 
+                cart[itemIndex].qty += 1; 
+            } else { 
+                cart.push({ name, price, img, qty: 1 }); 
+            }
+            updateCartUI();
+            if(!document.body.classList.contains('cart-open')) toggleCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+            if(cart.length === 0) resetCheckout();
+        }
+
+        function updateCartUI() {
+            const itemsContainer = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const countEl = document.getElementById('cart-count');
+            
+            itemsContainer.innerHTML = '';
+            let total = 0, count = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                count += item.qty;
+                itemsContainer.innerHTML += `
+                    <div class="flex items-center gap-3 bg-white p-2 rounded-xl border animate-fade-in">
+                        <img src="${item.img}" class="w-12 h-12 rounded-lg object-cover">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-[11px]">${item.name}</h4>
+                            <p class="text-indigo-600 font-black text-xs">${item.price.toLocaleString()} ج.س</p>
+                            <span class="text-[10px] text-gray-400">الكمية: ${item.qty}</span>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
+                    </div>`;
+            });
+
+            if(cart.length === 0) itemsContainer.innerHTML = '<p class="text-center text-gray-400 py-10 italic text-sm">السلة فارغة</p>';
+            countEl.innerText = count;
+            totalEl.innerText = total.toLocaleString();
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) return alert('سلتك فارغة!');
+            document.getElementById('checkout-form').classList.remove('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('submit-btn').classList.add('flex');
+        }
+
+        function resetCheckout() {
+            document.getElementById('checkout-form').classList.add('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+            document.getElementById('submit-btn').classList.add('hidden');
+        }
+
+        function sendWhatsAppOrder() {
+            const name = document.getElementById('cust-name').value;
+            const address = document.getElementById('cust-address').value;
+            const phone = document.getElementById('cust-phone').value;
+
+            if (!name || !address || !phone) {
+                alert('الرجاء تعبئة بياناتك لإتمام الطلب');
+                return;
+            }
+
+            let message = "🛍️ *طلب شراء جديد من SUDAN FASHION* \n\n";
+            message += `👤 *العميل:* ${name}\n`;
+            message += `📍 *العنوان:* ${address}\n`;
+            message += `📞 *الهاتف:* ${phone}\n`;
+            message += `💳 *الدفع:* تطبيق بنكك\n\n`;
+            message += `🛒 *المنتجات:* \n`;
+            
+            let total = 0;
+            cart.forEach((item, i) => {
+                message += `-${item.name} (x${item.qty}) = ${item.price * item.qty} ج.س\n`;
+                total += item.price * item.qty;
+            });
+
+            message += `\n💰 *الإجمالي: ${total.toLocaleString()} ج.س*`;
+            message += `\n\n_سأقوم بإرسال إشعار بنكك الآن.._`;
+
+            window.open(`https://wa.me/249902103267?text=${encodeURIComponent(message)}`, '_blank');
+        }
+    </script>
 </body>
 </html>
